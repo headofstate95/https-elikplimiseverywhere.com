@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Persistent News Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .news-container {
+            max-width: 700px;
+            margin: auto;
+        }
+        .news-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .news-item img {
+            max-width: 100%;
+            height: auto;
+        }
+        .news-item a {
+            color: blue;
+            text-decoration: none;
+        }
+        .news-item a:hover {
+            text-decoration: underline;
+        }
+        input, textarea {
+            display: block;
+            margin-bottom: 10px;
+            width: 100%;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="news-container">
+        <h1>Latest News</h1>
+
+        <!-- News Form -->
+        <div id="news-form">
+            <input type="text" id="title" placeholder="News Title">
+            <input type="text" id="date" placeholder="Date (e.g., June 9, 2025)">
+            <textarea id="content" placeholder="News Content"></textarea>
+            <input type="text" id="imageUrl" placeholder="Image URL">
+            <input type="text" id="linkUrl" placeholder="Link URL">
+            <button onclick="addNews()">Add News</button>
+            <button onclick="clearNews()" style="margin-top:10px;background:red;color:white;">Clear All News</button>
+        </div>
+
+        <!-- News List -->
+        <div id="news-list"></div>
+    </div>
+
+    <script>
+        // Load news from localStorage when page loads
+        window.onload = function() {
+            const savedNews = JSON.parse(localStorage.getItem('newsItems')) || [];
+            savedNews.forEach(item => renderNewsItem(item));
+        };
+
+        function addNews() {
+            const title = document.getElementById('title').value;
+            const date = document.getElementById('date').value;
+            const content = document.getElementById('content').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+            const linkUrl = document.getElementById('linkUrl').value;
+
+            if (!title || !content) {
+                alert("Title and Content are required.");
+                return;
+            }
+
+            const newsItem = { title, date, content, imageUrl, linkUrl };
+
+            // Save to localStorage
+            const savedNews = JSON.parse(localStorage.getItem('newsItems')) || [];
+            savedNews.unshift(newsItem); // add to top
+            localStorage.setItem('newsItems', JSON.stringify(savedNews));
+
+            // Render immediately
+            renderNewsItem(newsItem, true);
+
+            // Clear form
+            document.getElementById('title').value = '';
+            document.getElementById('date').value = '';
+            document.getElementById('content').value = '';
+            document.getElementById('imageUrl').value = '';
+            document.getElementById('linkUrl').value = '';
+        }
+
+        function renderNewsItem(item, insertAtTop = false) {
+            const newsList = document.getElementById('news-list');
+            const div = document.createElement('div');
+            div.className = 'news-item';
+            div.innerHTML = `
+                <h2>${item.title}</h2>
+                <p><strong>Date:</strong> ${item.date}</p>
+                ${item.imageUrl ? `<img src="${item.imageUrl}" alt="News image">` : ''}
+                <p>${item.content}</p>
+                ${item.linkUrl ? `<p><a href="${item.linkUrl}" target="_blank">Read more</a></p>` : ''}
+            `;
+            if (insertAtTop) {
+                newsList.prepend(div);
+            } else {
+                newsList.appendChild(div);
+            }
+        }
+
+        function clearNews() {
+            if (confirm("Are you sure you want to delete all news?")) {
+                localStorage.removeItem('newsItems');
+                document.getElementById('news-list').innerHTML = '';
+            }
+        }
+    </script>
+
+</body>
+</html>
